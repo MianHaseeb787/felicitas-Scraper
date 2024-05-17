@@ -1,5 +1,5 @@
 import scrapy
-# from basic_scrapy_spider.items import QuoteItem
+from basic_scrapy_spider.items import QuoteItem
 from datetime import date as dt, datetime, timezone
 import scrapy
 import gspread
@@ -15,56 +15,60 @@ scopes = [
 creds = service_account.Credentials.from_service_account_file("credentials.json", scopes=scopes)
 client = gspread.authorize(creds)
 
-sheet_id = "15LB8LrV-dXuOoE6oG40i8PhR0iJ9iDZ2MhxQrPCiWks"
+sheet_id = "1S11o6Ny4AUb_UH4xt1hAgI40ZofxyyujJPZHvAsLlO8"
 sheet = client.open_by_key(sheet_id)
 
 worksheets = sheet.worksheets()
 
 
-class QuotesSpider(scrapy.Spider):
+class astrovialsSpider(scrapy.Spider):
 
 
-    name = 'hugo'
+    name = 'teahrt'
     # allowed_domains = ['quotes.toscrape.com']
-    start_urls = ['https://flcts.eu/products/']
+    start_urls = ['https://teahrt.com/shop/']
 
 
     dataRows = []
-    # felicitas_counter = 0
 
     def parse(self, response):
-
-            products = response.css('.button::attr(href)').extract()
             
+            products = response.css('.woocommerce-LoopProduct-link::attr(href )').extract()
 
-            # meta = {"productsLen" : productsLen}
+            if len(products) == 0:
+                print('\n')
+                print("---------------------------------------- products List is returning Zero -------------------------------------")
+                print('\n')
+                print("------------------ Site ------- is ----- Down -----------------------")
+                print('\n')
+                
 
             for index, product in enumerate(products):
-                meta = {'index': index}  # Include the index in metadata
-                yield scrapy.Request(url=product, callback=self.parsefelicitasProduct, meta=meta)
-        
-            
+               
+                meta = {'index': index} 
+                yield scrapy.Request(url=product, callback=self.parseAstrovialsProduct, meta=meta)
 
-    def parsefelicitasProduct(self, response):
+          
 
-        # productsLen = response.meta['productsLen']
+    def parseAstrovialsProduct(self, response):
 
-        productName = response.css('.entry-title::text').get().strip()
-        productPrice = response.css('.elementor-widget-woocommerce-product-price bdi::text').get().strip()
-        productPrice = productPrice.replace(',', ".")
 
-        productStock = response.css('.in-stock::text').get()
+
+
+        productName = response.css('.entry-title::text ').get()
+        productPrice = response.css('bdi::text ').get()
+        productStock = response.css('input::attr(max)').get()
 
         if productStock is None:
             productStock = "0"
 
         print('\n')
 
-        try:
-            if 'in stock' in productStock:
-                productStock = productStock.replace('in stock', "")
-        except Exception as e:
-            print(e)
+        # try:
+        #     if 'in stock' in productStock:
+        #         productStock = productStock.replace('in stock', "")
+        # except Exception as e:
+        #     print(e)
 
         print(f"product Name : {productName}")
         print(f"product Price : {productPrice}")
@@ -82,7 +86,8 @@ class QuotesSpider(scrapy.Spider):
             self.dataRows.append({})
             
         self.dataRows[index] = data
-        # self.felicitas_counter +=1
+
+        print(self.dataRows)
 
     def closed(self, reason):
         print("Closed")
@@ -353,20 +358,3 @@ class QuotesSpider(scrapy.Spider):
 
                     # update Date
                     worksheet.update_cell(newRow,7, usDateStr)
-
-                    
-                    # range_name = 'A2:C'  
-                    # request_body = {
-                    #         'value_input_option': 'USER_ENTERED',  
-                    #         'data': [
-                    #             {
-                    #                 'range': range_name,  
-                    #                 'values': data_to_write,  
-                    #             }
-                    #         ]
-                    #     }
-                    # service = discovery.build('sheets', 'v4', credentials=creds)
-                    # response = service.spreadsheets().values().batchUpdate(spreadsheetId=sheet.id, body=request_body).execute()
-           
-
-

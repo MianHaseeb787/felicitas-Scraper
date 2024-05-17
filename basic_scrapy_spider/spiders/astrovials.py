@@ -19,7 +19,7 @@ sheet_id = "1CyLH96g14JnpYfPEexWNX2Jq0zBN1SuTSjdH-k6g_OY"
 sheet = client.open_by_key(sheet_id)
 
 worksheets = sheet.worksheets()
-print(f"Worksheets number :    {(worksheets)}")
+
 
 class astrovialsSpider(scrapy.Spider):
 

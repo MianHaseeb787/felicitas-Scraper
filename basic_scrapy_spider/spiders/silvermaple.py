@@ -18,7 +18,7 @@ sheet_id = "12Xf3cQbCTLOqBs5n7LDXx9f52W0N4DtmfzKdF3Yr3y8"
 sheet = client.open_by_key(sheet_id)
 
 worksheets = sheet.worksheets()
-print(f"Worksheets number :    {(worksheets)}")
+
 
 class silvermapleSpider(scrapy.Spider):
 
