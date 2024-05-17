@@ -1,5 +1,5 @@
 import scrapy
-# from basic_scrapy_spider.items import QuoteItem
+from basic_scrapy_spider.items import QuoteItem
 from datetime import date as dt, datetime, timezone
 import scrapy
 import gspread
@@ -14,48 +14,35 @@ scopes = [
 ]
 creds = service_account.Credentials.from_service_account_file("credentials.json", scopes=scopes)
 client = gspread.authorize(creds)
+sheet_id = "12Xf3cQbCTLOqBs5n7LDXx9f52W0N4DtmfzKdF3Yr3y8"
+sheet = client.open_by_key(sheet_id)
 
-# sheet_id = "15LB8LrV-dXuOoE6oG40i8PhR0iJ9iDZ2MhxQrPCiWks"
-# sheet = client.open_by_key(sheet_id)
+worksheets = sheet.worksheets()
+print(f"Worksheets number :    {(worksheets)}")
 
-# worksheets = sheet.worksheets()
-# print(f"Worksheets number :    {(worksheets)}")
-
-class QuotesSpider(scrapy.Spider):
+class silvermapleSpider(scrapy.Spider):
 
 
-    name = 'hugo'
+    name = 'silvermaple'
     # allowed_domains = ['quotes.toscrape.com']
-    start_urls = ['https://flcts.eu/products/']
+    start_urls = ['https://silvermaplelabs.com/shop/']
 
 
     dataRows = []
-    felicitas_counter = 0
 
     def parse(self, response):
-
-        print('parseddd calledd ##############')
-        print(response.url)
-        if 'https://flcts.eu/products/' in response.url:
-            products = response.css('.button::attr(href)').extract()
-            productsLen = len(products)
-
-            # meta = {"productsLen" : productsLen}
+        
+            products = response.css('.has-medium-font-size a::attr(href)').extract()
 
             for index, product in enumerate(products):
-                meta = {'index': index,"productsLen" : productsLen}  # Include the index in metadata
-                yield scrapy.Request(url=product, callback=self.parsefelicitasProduct, meta=meta)
-        
-            
+                meta = {'index': index}  # Include the index in metadata
+                yield scrapy.Request(url=product, callback=self.parseSilverMapleProduct, meta=meta)
 
-    def parsefelicitasProduct(self, response):
+          
 
-        productsLen = response.meta['productsLen']
-
-        productName = response.css('.entry-title::text').get().strip()
-        productPrice = response.css('.elementor-widget-woocommerce-product-price bdi::text').get().strip()
-        productPrice = productPrice.replace(',', ".")
-
+    def parseSilverMapleProduct(self, response):
+        productName = response.css('.wp-block-column-is-layout-flow .wp-block-post-title::text').get().strip()
+        productPrice = response.css('.has-large-font-size bdi::text').get().strip()
         productStock = response.css('.in-stock::text').get()
 
         if productStock is None:
@@ -85,26 +72,12 @@ class QuotesSpider(scrapy.Spider):
             self.dataRows.append({})
             
         self.dataRows[index] = data
-        self.felicitas_counter +=1
 
-        
-
-        if productsLen  == self.felicitas_counter :
-           sheet_id = "15LB8LrV-dXuOoE6oG40i8PhR0iJ9iDZ2MhxQrPCiWks"
-           loadDataInSheet(self.dataRows, sheet_id)
-           
+    def closed(self, reason):
+        print("Closed")
 
 
-def loadDataInSheet(productsList, sheet_id):
-        print("Googlee sheet called")
-        print(productsList)
-
-        sheet = client.open_by_key(sheet_id)
-
-        worksheets = sheet.worksheets()
-        print(f"Worksheets number :    {(worksheets)}")
-
-
+        print(self.dataRows)
 
         for i, worksheet in enumerate(worksheets):
             
@@ -128,7 +101,7 @@ def loadDataInSheet(productsList, sheet_id):
             # print(utcDateStr)
             
            
-            print(f"product is {productsList[i]}")
+            print(f"product is {self.dataRows[i]}")
         
 
             lastRowIndex = len(worksheet.get_all_values())
@@ -138,7 +111,7 @@ def loadDataInSheet(productsList, sheet_id):
                 print("in condition 1")
                 data_to_write = []
 
-                product1 = productsList[i] 
+                product1 = self.dataRows[i] 
                 print(f"product 1 is {product1}")
                 
                 data_to_write.append([product1.get('Product Name', ''), product1.get('Price', ''), product1.get('Stock', ''), 
@@ -185,15 +158,17 @@ def loadDataInSheet(productsList, sheet_id):
                     worksheet.update_cell(lastRowIndex,4, stockValue)
 
                     # loading A b c
-                    data_to_write = []
 
-                    product1 = productsList[i]
+                    # data_to_write = []
+
+                    product1 = self.dataRows[i]
                     
-                    data_to_write.append([product1.get('Product Name', ''), product1.get('Price', ''), product1.get('Stock', ''), 
-                                            ])
+                    # data_to_write.append([product1.get('Product Name', ''), product1.get('Price', ''), product1.get('Stock', ''), 
+                    #                         ])
                     
                                     
-                    print(f"data_to_write   {data_to_write}")
+                    # print(f"data_to_write   {data_to_write}")
+
                     productName =  product1.get('Product Name', '')
                     worksheet.update_cell(lastRowIndex,1,productName)
 
@@ -232,7 +207,7 @@ def loadDataInSheet(productsList, sheet_id):
 
         
 
-                    stock = productsList[i].get('Stock', '')
+                    stock = self.dataRows[i].get('Stock', '')
                     print(f"stock {stock}")
 
                     if stock:
@@ -240,7 +215,7 @@ def loadDataInSheet(productsList, sheet_id):
                     else:
                         stock = 0
 
-                    currentPrice = productsList[i].get('Price', '')
+                    currentPrice = self.dataRows[i].get('Price', '')
                     if currentPrice:
                          currentPrice = float(currentPrice)
                     else:
@@ -287,15 +262,17 @@ def loadDataInSheet(productsList, sheet_id):
                     worksheet.update_cell(newRow,4, preStk)
 
                     # load a b c g
-                    data_to_write = []
 
-                    product1 = productsList[i]
+                    # data_to_write = []
+
+                    product1 = self.dataRows[i]
                         
-                    data_to_write.append([product1.get('Product Name', ''), product1.get('Price', ''), product1.get('Stock', ''), 
-                                                ])
+                    # data_to_write.append([product1.get('Product Name', ''), product1.get('Price', ''), product1.get('Stock', ''), 
+                    #                             ])
                     
                                     
-                    print(f"data_to_write   {data_to_write}")
+                    # print(f"data_to_write   {data_to_write}")
+                    
                     productName =  product1.get('Product Name', '')
                     worksheet.update_cell(newRow,1,productName)
 
@@ -318,7 +295,7 @@ def loadDataInSheet(productsList, sheet_id):
 
         
 
-                    stock = productsList[i].get('Stock', '')
+                    stock = self.dataRows[i].get('Stock', '')
                     print(f"stock {stock}")
 
                     if stock:
@@ -326,7 +303,7 @@ def loadDataInSheet(productsList, sheet_id):
                     else:
                         stock = 0
 
-                    currentPrice = productsList[i].get('Price', '')
+                    currentPrice = self.dataRows[i].get('Price', '')
                     if currentPrice:
                          currentPrice = float(currentPrice)
                     else:
@@ -380,11 +357,6 @@ def loadDataInSheet(productsList, sheet_id):
                     # service = discovery.build('sheets', 'v4', credentials=creds)
                     # response = service.spreadsheets().values().batchUpdate(spreadsheetId=sheet.id, body=request_body).execute()
 
-                    
 
 
-
-
-
-        
 
