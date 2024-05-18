@@ -1,5 +1,5 @@
 import scrapy
-# from basic_scrapy_spider.items import QuoteItem
+from basic_scrapy_spider.items import QuoteItem
 from datetime import date as dt, datetime, timezone
 import scrapy
 import gspread
