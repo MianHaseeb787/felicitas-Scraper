@@ -2,4 +2,3 @@ scrapy ~= 2.11.1
 gspread ~= 6.1.0
 google-api-python-client
 pytz
-selenium ~= 4.21.0
