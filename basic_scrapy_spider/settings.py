@@ -7,6 +7,8 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+from shutil import which
+
 BOT_NAME = 'basic_scrapy_spider'
 
 SPIDER_MODULES = ['basic_scrapy_spider.spiders']
@@ -19,8 +21,12 @@ NEWSPIDER_MODULE = 'basic_scrapy_spider.spiders'
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
+
+
+
+
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+# CONCURRENT_REQUESTS = 2
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay

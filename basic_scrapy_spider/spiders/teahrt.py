@@ -281,22 +281,45 @@ class astrovialsSpider(scrapy.Spider):
 
                     # data_to_write = []
 
-                    product1 = self.dataRows[i]
+                    # product1 = self.dataRows[i]
                         
                     # data_to_write.append([product1.get('Product Name', ''), product1.get('Price', ''), product1.get('Stock', ''), 
                     #                             ])
                     
                                     
                     # print(f"data_to_write   {data_to_write}")
+
+                    data_to_write = []
+
+                    product1 = self.dataRows[i]
+
+                    # Extract the values and convert them to the appropriate types
+                    product_name = product1.get('Product Name', '')
+                    product_price = product1.get('Price', '')
+                    stock = product1.get('Stock', '')
+
+                    # Convert to float if the values are numeric to avoid them being treated as text
+                    if product_price:
+                        product_price = float(product_price)
+                    if stock.isdigit():
+                        stock = int(stock)
+
+                    data_to_write.append([product_name, product_price, stock])
+
+                    print(f"data_to_write   {data_to_write}")
+
+                    cell_range = f"A{newRow}:C{newRow}"
+
+                    worksheet.update(cell_range, data_to_write)
                     
-                    productName =  product1.get('Product Name', '')
-                    worksheet.update_cell(newRow,1,productName)
+                    # productName =  product1.get('Product Name', '')
+                    # worksheet.update_cell(newRow,1,productName)
 
-                    productPrice =  product1.get('Price', '')
-                    worksheet.update_cell(newRow,2,productPrice)
+                    # productPrice =  product1.get('Price', '')
+                    # worksheet.update_cell(newRow,2,productPrice)
 
-                    stock =  product1.get('Stock', '')
-                    worksheet.update_cell(newRow,3,stock)
+                    # stock =  product1.get('Stock', '')
+                    # worksheet.update_cell(newRow,3,stock)
 
                     # calcs
                     previousStock =  preStk

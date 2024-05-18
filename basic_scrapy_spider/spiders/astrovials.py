@@ -268,15 +268,9 @@ class astrovialsSpider(scrapy.Spider):
 
                     # load a b c g
 
-                    # data_to_write = []
-
-                    product1 = self.dataRows[i]
-                        
-                    # data_to_write.append([product1.get('Product Name', ''), product1.get('Price', ''), product1.get('Stock', ''), 
-                    #                             ])
                     
                                     
-                    # print(f"data_to_write   {data_to_write}")
+                    print(f"data_to_write   {data_to_write}")
                     
                     productName =  product1.get('Product Name', '')
                     worksheet.update_cell(newRow,1,productName)
