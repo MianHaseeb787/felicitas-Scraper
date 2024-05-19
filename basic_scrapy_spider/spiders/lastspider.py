@@ -49,19 +49,56 @@ class LastSpider(scrapy.Spider):
     def parseLastSpiderProduct(self, response):
 
             # Assuming you're using Scrapy to scrape web data
-        productStock = response.css('.variations_form.cart').extract()
+        productStock = response.css('.variations_form.cart').get()
+        stock_count = 0
 
-        # Convert the extracted element to a string
-        productStock_str = ''.join(productStock)
+        if productStock is not None:
 
-        match = re.search(r'\d+', productStock_str)
+            print('Form present')
+             
 
-        if match:
-            stock_count = int(match.group())
-            print("Number of items in stock:", stock_count)
-        else:
-            print("No stock information found.")
-            stock_count= 0
+            # Convert the extracted element to a string
+            productStock_str = ''.join(productStock)
+            print(productStock_str)
+
+            
+
+            match = re.search(r'stock in-stock\\"&gt;(\d+ in stock)', productStock_str)
+
+            if match:
+                stock_text = match.group(1)
+                print("Stock text:", stock_text)
+
+                if 'in stock' in stock_text:
+                  stock_text = stock_text.replace('in stock', '')
+                  print(stock_text)
+                  stock_count =  int(stock_text)
+            else:
+                print("Stock text not found")
+                stock_count = 0
+
+        # if match:
+        #     stock_count = int(match.group())
+        #     print("Number of items in stock:", stock_count)
+        # else:
+        #     print("No stock information found.")
+        #     stock_count= 0
+
+        else :
+             
+             print('Form not present')
+             in_stock = response.css('.in-stock::text').get()
+
+             if in_stock is not None:
+                if 'in stock' in in_stock:
+                    in_stock = in_stock.replace('in stock', '')
+
+                    print(f"stokc count in {in_stock}")
+                    stock_count =  int(in_stock)
+
+             else:
+                stock_count = 0
+    
 
         productName = response.css('.product_title::text').get().strip()
         productPrice = response.css('bdi::text ').get()
