@@ -6,13 +6,16 @@ import gspread
 import pytz
 import json
 from google.oauth2 import service_account
+import os
 
 scopes = [
     'https://www.googleapis.com/auth/spreadsheets', 
     'https://www.googleapis.com/auth/drive',
     'https://mail.google.com/' 
 ]
-creds = service_account.Credentials.from_service_account_file("credentials.json", scopes=scopes)
+
+credentails_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+creds = service_account.Credentials.from_service_account_file(credentails_path, scopes=scopes)
 client = gspread.authorize(creds)
 sheet_id = "12Xf3cQbCTLOqBs5n7LDXx9f52W0N4DtmfzKdF3Yr3y8"
 sheet = client.open_by_key(sheet_id)
