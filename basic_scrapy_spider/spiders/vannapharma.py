@@ -33,7 +33,7 @@ class astrovialsSpider(scrapy.Spider):
 
     def parse(self, response):
             
-            products = response.css('.woocommerce-LoopProduct-link::attr(href)').extract()
+            products = response.css('.button.product_type_simple::attr(href )').extract()
 
             if len(products) == 0:
                 print('\n')
@@ -44,10 +44,25 @@ class astrovialsSpider(scrapy.Spider):
                 
 
             for index, product in enumerate(products):
-                priceList = response.css('bdi::text').extract()
-                price = priceList[index+2]
-                meta = {'index': index, 'price' : price} 
-                yield scrapy.Request(url=product, callback=self.parseAstrovialsProduct, meta=meta)
+
+                if 'https://vannapharma.cc' in product:
+                    priceList = response.css('bdi::text').extract()
+                    print(f"Price List : {priceList}")
+
+                    price = priceList[index+2]
+                    print(price)
+                    meta = {'index': index, 'price' : price} 
+                    yield scrapy.Request(url=product, callback=self.parseAstrovialsProduct, meta=meta)
+
+                else:
+                    priceList = response.css('bdi::text').extract()
+                    print(f"Price List : {priceList}")
+
+                    price = priceList[index+2]
+                    print(price)
+                    meta = {'index': index, 'price' : price} 
+                    yield scrapy.Request(url='https://vannapharma.cc/shop/estradiol-undecylate-10ml-40mg-ml/', callback=self.parseAstrovialsProduct, meta=meta)
+                     
 
           
 
