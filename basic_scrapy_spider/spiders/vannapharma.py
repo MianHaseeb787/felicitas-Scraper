@@ -33,7 +33,14 @@ class astrovialsSpider(scrapy.Spider):
 
     def parse(self, response):
             
-            products = response.css('.button.product_type_simple::attr(href )').extract()
+            products = ['https://vannapharma.cc/shop/estradiol-gel-110ml/',
+                        'https://vannapharma.cc/shop/estradiol-undecylate-10ml-40mg-ml/',
+                        'https://vannapharma.cc/shop/estradiol-gel-55ml/',
+                        'https://vannapharma.cc/shop/estradiol-cypionate/',
+                        'https://vannapharma.cc/shop/estradiol-enanthate/',
+                        'https://vannapharma.cc/shop/estradiol-valerate/'
+                        ]
+            # products = response.css('.button.product_type_simple::attr(href )').extract()
 
             if len(products) == 0:
                 print('\n')
@@ -41,28 +48,20 @@ class astrovialsSpider(scrapy.Spider):
                 print('\n')
                 print("------------------ Site ------- is ----- Down -----------------------")
                 print('\n')
+
+            priceList = ['160', '95', '95', '70', '65', '60' ]
                 
 
             for index, product in enumerate(products):
 
-                if 'https://vannapharma.cc' in product:
-                    priceList = response.css('bdi::text').extract()
+                
+                    # priceList = response.css('bdi::text').extract()
                     print(f"Price List : {priceList}")
 
-                    price = priceList[index+2]
+                    price = priceList[index]
                     print(price)
                     meta = {'index': index, 'price' : price} 
                     yield scrapy.Request(url=product, callback=self.parseAstrovialsProduct, meta=meta)
-
-                else:
-                    priceList = response.css('bdi::text').extract()
-                    print(f"Price List : {priceList}")
-
-                    price = priceList[index+2]
-                    print(price)
-                    meta = {'index': index, 'price' : price} 
-                    yield scrapy.Request(url='https://vannapharma.cc/shop/estradiol-undecylate-10ml-40mg-ml/', callback=self.parseAstrovialsProduct, meta=meta)
-                     
 
           
 
